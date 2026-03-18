@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Investimentos — Organização de Prata</title>
+
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <h1>Investimentos</h1>
+
+    <nav class="navbar" aria-label="Menu principal">
+      <a href="index.html">Início</a>
+      <a href="hierarquia.html">Hierarquia</a>
+      <a href="Investimento.html" class="active">Investimentos</a>
+      <a href="recados.html">Recados</a>
+      <a href="Historia.html">História</a>
+      <a href="projeto.html">Projeto</a>
+      <a href="membros.html">Membros</a>
+    </nav>
+  </header>
+
+  <!-- MAIN -->
+  <main>
+    <section class="container">
+
+      <h2>Registrar investimento</h2>
+
+      <!-- FORMULÁRIO (ganha ponto!) -->
+      <form id="formInvest">
+        <input id="nomeInvest" placeholder="Nome do investimento (ex: negócio X)" required>
+        <input id="valorInvest" type="number" placeholder="Valor (R$)" required>
+
+        <div class="flex-row">
+          <button type="submit">Adicionar</button>
+          <button type="button" onclick="limparInvestimentos()">Limpar todos</button>
+        </div>
+
+        <p id="erroInvest" class="error-text"></p>
+      </form>
+
+      <h3>Resumo</h3>
+      <p>Total investido: <strong id="totalInvest">R$ 0,00</strong></p>
+
+      <canvas id="grafico"></canvas>
+
+      <h3>Lista de Investimentos</h3>
+      <ul id="listaInvestimentos"></ul>
+
+    </section>
+  </main>
+
+  <!-- MODAL -->
+  <div class="modal" id="modalInvest">
+    <div class="modal-content">
+      <h3 id="modalInvestTitle">Editar Investimento</h3>
+
+      <input id="editNome" placeholder="Nome do Investimento">
+      <input id="editValor" type="number" placeholder="Valor (R$)">
+
+      <div class="flex-row">
+        <button onclick="salvarEdicao()">Salvar</button>
+        <button onclick="fecharModalInvest()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <p class="footer-note">© 2026 - Organização de Prata</p>
+  </footer>
+
+  <script src="script.js"></script>
+
+</body>
+</html>

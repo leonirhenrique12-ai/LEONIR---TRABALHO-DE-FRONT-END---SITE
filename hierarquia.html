@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hierarquia - Organização dos socios</title>
+  <style>
+    body {
+      font-family: 'Times New Roman', serif;
+      background: #1e1e1e;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #c0392b;
+    }
+    h1 {
+      margin-bottom: 20px;
+      font-size: 2rem;
+      color: #e74c3c;
+      text-shadow: 2px 2px 5px rgba(0,0,0,0.7);
+    }
+    .tree {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      width: 100%;
+    }
+    .node {
+      background: #2c2c2c;
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.5);
+      min-width: 160px;
+      text-align: center;
+      position: relative;
+      transition: all 0.3s ease;
+      border: 2px solid #c0392b;
+      color: #e74c3c;
+      margin: 15px;
+    }
+    .node:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.7);
+    }
+   
+  .node img {
+  width: 80px;           
+  height: 80px;         
+  object-fit: cover;     
+  border-radius: 50%;    
+  border: 2px solid #c0392b;
+  margin-bottom: 10px;
+  display: block;
+  max-width: 100%;      
+}
+
+
+    .node h3 {
+      margin: 0;
+      font-size: 1.1rem;
+    }
+    .node small {
+      display: block;
+      margin-top: 5px;
+      color: #bdc3c7;
+    }
+    .node p {
+      font-size: 0.8rem;
+      color: #aaa;
+      margin-top: 5px;
+    }
+    .children {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 15px;
+    }
+    .controls button {
+      margin: 3px;
+      padding: 5px 8px;
+      font-size: 0.8rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      background: #c0392b;
+      color: #fff;
+    }
+    .controls button:hover {
+      background: #e74c3c;
+    }
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.7);
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background: #3d3d3d;
+      padding: 20px;
+      border-radius: 10px;
+      color: #e74c3c;
+      width: 300px;
+      text-align: center;
+    }
+    .modal input, .modal textarea {
+      width: 90%;
+      margin: 10px 0;
+      padding: 8px;
+      border: 1px solid #c0392b;
+      border-radius: 6px;
+      background: #2c2c2c;
+      color: #fff;
+    }
+    .main-controls {
+      margin-top: 20px;
+    }
+    .main-controls button {
+      margin: 5px;
+      padding: 8px 12px;
+      font-size: 0.9rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      background: #c0392b;
+      color: #fff;
+    }
+    .main-controls button:hover {
+      background: #e74c3c;
+    }
+  </style>
+</head>
+<body>
+  <h1>Organização do socios</h1>
+
+  <div  <class="main-controls">
+     <button onclick="window.location.href='index.html'">-Voltar ao Inicio</button>
+   </div>
+
+
+  <div id="tree" class="tree"></div>
+
+
+  <div class="main-controls">
+    <button onclick="abrirModal(null, 'add','center')">Adicionar Líder</button>
+    <button onclick="limparTudo()">Limpar Tudo</button>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal" id="modal">
+    <div class="modal-content">
+      <h2 id="modalTitle">Novo Membro</h2>
+      <input type="text" id="nome" placeholder="Nome" />
+      <input type="text" id="funcao" placeholder="Função" />
+      <textarea id="desc" placeholder="Descrição"></textarea>
+      <input type="file" id="imagem" accept="image/*" />
+      <br>
+      <button onclick="salvarMembro()">Salvar</button>
+      <button onclick="fecharModal()">Cancelar</button>
+    </div>
+  </div>
+
+  <script>
+    let actionType = 'add';
+    let currentNode = null;
+    let currentSide = 'center';
+    let orgData = JSON.parse(localStorage.getItem("orgData")) || [];
+    let draggedId = null;
+
+    function abrirModal(btn, action, side = 'center') {
+      actionType = action;
+      currentSide = side;
+      currentNode = btn ? btn.closest('.node') : null;
+
+      document.getElementById('modal').style.display = 'flex';
+      document.getElementById('modalTitle').innerText = action === 'edit' ? 'Editar Membro' : 'Novo Membro';
+
+      if (action === 'edit' && currentNode) {
+        document.getElementById('nome').value = currentNode.dataset.nome;
+        document.getElementById('funcao').value = currentNode.dataset.funcao;
+        document.getElementById('desc').value = currentNode.dataset.desc || '';
+        document.getElementById('imagem').value = '';
+      } else {
+        document.getElementById('nome').value = '';
+        document.getElementById('funcao').value = '';
+        document.getElementById('desc').value = '';
+        document.getElementById('imagem').value = '';
+      }
+    }
+
+    function fecharModal() {
+      document.getElementById('modal').style.display = 'none';
+    }
+
+    function salvarMembro() {
+      const nome = document.getElementById('nome').value.trim();
+      const funcao = document.getElementById('funcao').value.trim();
+      const desc = document.getElementById('desc').value.trim();
+      const file = document.getElementById('imagem').files[0];
+
+      if (!nome || !funcao) {
+        alert("Preencha nome e função");
+        return;
+      }
+
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          processSave(nome, funcao, desc, e.target.result);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        processSave(nome, funcao, desc, null);
+      }
+    }
+
+    function processSave(nome, funcao, desc, imagem) {
+      if (actionType === 'add') {
+        if (!currentNode) {
+          orgData.push({ id: genId(), nome, funcao, desc, imagem, filhos: [] });
+        } else {
+          let parent = findNode(orgData, currentNode.dataset.id);
+          if (currentSide === 'center') {
+            parent.filhos.push({ id: genId(), nome, funcao, desc, imagem, filhos: [] });
+          } else {
+            let container = findParentContainer(orgData, currentNode.dataset.id);
+            if (!container) container = orgData;
+            let index = container.findIndex(n => n.id === currentNode.dataset.id);
+            let newNode = { id: genId(), nome, funcao, desc, imagem, filhos: [] };
+            if (currentSide === 'left') {
+              container.splice(index, 0, newNode);
+            } else if (currentSide === 'right') {
+              container.splice(index + 1, 0, newNode);
+            }
+          }
+        }
+      } else if (actionType === 'edit' && currentNode) {
+        let node = findNode(orgData, currentNode.dataset.id);
+        node.nome = nome;
+        node.funcao = funcao;
+        node.desc = desc;
+        if (imagem) node.imagem = imagem;
+      }
+
+      salvarLocal();
+      renderTree();
+      fecharModal();
+    }
+
+    function salvarLocal() {
+      localStorage.setItem("orgData", JSON.stringify(orgData));
+    }
+
+    function genId() {
+      return Math.random().toString(36).substr(2, 9);
+    }
+
+    function findNode(arr, id) {
+      for (let node of arr) {
+        if (node.id === id) return node;
+        if (node.filhos) {
+          let found = findNode(node.filhos, id);
+          if (found) return found;
+        }
+      }
+      return null;
+    }
+
+    function findParentContainer(arr, id) {
+      for (let i = 0; i < arr.length; i++) {
+        if (arr[i].id === id) return arr;
+        if (arr[i].filhos) {
+          let found = findParentContainer(arr[i].filhos, id);
+          if (found) return found;
+        }
+      }
+      return null;
+    }
+
+    function enableDragAndDrop(nodeDiv) {
+      nodeDiv.setAttribute("draggable", "true");
+      nodeDiv.ondragstart = (e) => { draggedId = nodeDiv.dataset.id; e.dataTransfer.effectAllowed = "move"; };
+      nodeDiv.ondragover = (e) => { e.preventDefault(); nodeDiv.style.borderColor = "#e74c3c"; };
+      nodeDiv.ondragleave = () => { nodeDiv.style.borderColor = "#c0392b"; };
+      nodeDiv.ondrop = (e) => {
+        e.preventDefault(); nodeDiv.style.borderColor = "#c0392b";
+        if (!draggedId || draggedId === nodeDiv.dataset.id) return;
+
+        let draggedNode = removeNodeById(draggedId);
+        if (e.offsetY < nodeDiv.offsetHeight / 3) {
+          insertRelative(nodeDiv.dataset.id, draggedNode, "left");
+        } else if (e.offsetY > (nodeDiv.offsetHeight * 2) / 3) {
+          insertRelative(nodeDiv.dataset.id, draggedNode, "right");
+        } else {
+          let parent = findNode(orgData, nodeDiv.dataset.id);
+          parent.filhos.push(draggedNode);
+        }
+
+        salvarLocal();
+        renderTree();
+      };
+    }
+
+    function insertRelative(targetId, newNode, side) {
+      let container = findParentContainer(orgData, targetId);
+      let index = container.findIndex((n) => n.id === targetId);
+      if (side === "left") container.splice(index, 0, newNode);
+      else if (side === "right") container.splice(index + 1, 0, newNode);
+    }
+
+    function removeNodeById(id) {
+      function rec(arr) {
+        for (let i = 0; i < arr.length; i++) {
+          if (arr[i].id === id) {
+            return arr.splice(i, 1)[0];
+          }
+          if (arr[i].filhos) {
+            let found = rec(arr[i].filhos);
+            if (found) return found;
+          }
+        }
+        return null;
+      }
+      return rec(orgData);
+    }
+
+    function renderTree() {
+      const tree = document.getElementById('tree');
+      tree.innerHTML = '';
+      renderNodes(orgData, tree);
+    }
+
+    function renderNodes(nodes, container) {
+      nodes.forEach((n) => {
+        const div = document.createElement('div');
+        div.classList.add('node');
+        div.dataset.id = n.id;
+        div.dataset.nome = n.nome;
+        div.dataset.funcao = n.funcao;
+        div.dataset.desc = n.desc;
+
+        div.innerHTML = `
+          ${n.imagem ? `<img src="${n.imagem}" alt="${n.nome}">` : ""}
+          <h3>${n.nome}</h3>
+          <small>${n.funcao}</small>
+          <p>${n.desc || ''}</p>
+          <div class="controls">
+            <button onclick="abrirModal(this, 'add','left')">+ Esq</button>
+            <button onclick="abrirModal(this, 'add','center')">+ Sub</button>
+            <button onclick="abrirModal(this, 'add','right')">+ Dir</button>
+            <button onclick="abrirModal(this, 'edit')">Editar</button>
+            <button onclick="removerNode('${n.id}')">Remover</button>
+          </div>
+        `;
+
+        enableDragAndDrop(div);
+
+        const childrenDiv = document.createElement('div');
+        childrenDiv.classList.add('children');
+        div.appendChild(childrenDiv);
+
+        container.appendChild(div);
+
+        if (n.filhos && n.filhos.length > 0) {
+          renderNodes(n.filhos, childrenDiv);
+        }
+      });
+    }
+
+    function removerNode(id) {
+      removeNodeById(id);
+      salvarLocal();
+      renderTree();
+    }
+
+    function limparTudo() {
+      if (confirm("Tem certeza que deseja limpar tudo?")) {
+        orgData = [];
+        salvarLocal();
+        renderTree();
+      }
+    }
+
+    // iniciar
+    renderTree();
+  </script>
+</body>
+</html>
+

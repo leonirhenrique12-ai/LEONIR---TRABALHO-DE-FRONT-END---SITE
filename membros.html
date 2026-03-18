@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Membros — Organização de Prata</title>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <h1>Membros</h1>
+
+    <nav class="navbar" aria-label="Menu principal">
+      <a href="index.html">Início</a>
+      <a href="hierarquia.html">Hierarquia</a>
+      <a href="Investimento.html">Investimentos</a>
+      <a href="recados.html">Recados</a>
+      <a href="Historia.html">História</a>
+      <a href="projeto.html">Projetos</a>
+      <a href="membros.html" class="active">Membros</a>
+    </nav>
+  </header>
+
+  <!-- MAIN -->
+  <main>
+    <section class="container">
+
+      <h2>Lista de Membros</h2>
+
+      <!-- FORMULÁRIO -->
+      <form id="formMembro">
+        <input type="text" id="nomeMembro" placeholder="Nome" required>
+        <input type="text" id="cargoMembro" placeholder="Cargo" required>
+        <input type="file" id="fotoMembro" accept="image/*">
+
+        <div class="flex-row">
+          <button type="submit">Adicionar</button>
+          <button type="button" onclick="limparMembros()">Limpar Tudo</button>
+        </div>
+
+        <p id="erroMembro" class="error-text"></p>
+      </form>
+
+      <div class="lista-membros" id="listaMembros"></div>
+
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <p class="footer-note">© 2026 - Organização de Prata</p>
+  </footer>
+
+  <script src="script.js"></script>
+
+</body>
+</html>

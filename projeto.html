@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Projetos — Organização de Prata</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .projeto {
+      background: #2c2c2c;
+      border: 2px solid #c0392b;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 10px 0;
+      color: #fff;
+    }
+    .projeto h3 { margin: 0 0 5px 0; color: #e74c3c; }
+    .status {
+      font-size: 0.9rem;
+      margin-top: 5px;
+      color: #aaa;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Projetos</h1>
+    <nav class="navbar">
+      <a href="index.html">Início</a>
+      <a href="hierarquia.html">Hierarquia</a>
+      <a href="Investimento.html">Investimentos</a>
+      <a href="recados.html">Recados</a>
+      <a href="Historia.html">História</a>
+      <a href="projeto.html">Projetos</a>
+      <a href="membros.html">Membros</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <h2>Gerenciamento de Projetos</h2>
+    <div class="controls">
+      <input type="text" id="nomeProjeto" placeholder="Nome do Projeto" />
+      <input type="text" id="responsavelProjeto" placeholder="Responsável" />
+      <select id="statusProjeto">
+        <option value="Planejamento">Planejamento</option>
+        <option value="Em andamento">Em andamento</option>
+        <option value="Concluído">Concluído</option>
+      </select>
+      <button onclick="adicionarProjeto()">Adicionar</button>
+      <button onclick="limparProjetos()">Limpar Tudo</button>
+    </div>
+
+    <div id="listaProjetos"></div>
+  </main>
+
+  <script>
+    let projetos = JSON.parse(localStorage.getItem("projetos")) || [];
+
+    function salvarProjetos() {
+      localStorage.setItem("projetos", JSON.stringify(projetos));
+    }
+
+    function renderProjetos() {
+      const container = document.getElementById("listaProjetos");
+      container.innerHTML = "";
+      projetos.forEach((p, i) => {
+        container.innerHTML += `
+          <div class="projeto">
+            <h3>${p.nome}</h3>
+            <p><b>Responsável:</b> ${p.responsavel}</p>
+            <p class="status">Status: ${p.status}</p>
+            <button onclick="removerProjeto(${i})">Remover</button>
+          </div>
+        `;
+      });
+    }
+
+    function adicionarProjeto() {
+      const nome = document.getElementById("nomeProjeto").value.trim();
+      const responsavel = document.getElementById("responsavelProjeto").value.trim();
+      const status = document.getElementById("statusProjeto").value;
+      if (!nome || !responsavel) {
+        alert("Preencha todos os campos!");
+        return;
+      }
+      projetos.push({ nome, responsavel, status });
+      salvarProjetos();
+      renderProjetos();
+      document.getElementById("nomeProjeto").value = "";
+      document.getElementById("responsavelProjeto").value = "";
+    }
+
+    function removerProjeto(i) {
+      projetos.splice(i, 1);
+      salvarProjetos();
+      renderProjetos();
+    }
+
+    function limparProjetos() {
+      if (confirm("Deseja apagar todos os projetos?")) {
+        projetos = [];
+        salvarProjetos();
+        renderProjetos();
+      }
+    }
+
+    renderProjetos();
+  </script>
+</body>
+</html>
+
